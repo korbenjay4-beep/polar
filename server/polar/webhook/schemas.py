@@ -6,8 +6,10 @@ from pydantic import UUID4, AfterValidator, AnyUrl, BeforeValidator, Field
 from pydantic.json_schema import SkipJsonSchema
 
 from polar.kit.schemas import HttpsUrl, IDSchema, Schema, TimestampedSchema
+from polar.kit.versioning import APIVersion
 from polar.models.webhook_endpoint import WebhookEventType, WebhookFormat
 from polar.organization.schemas import OrganizationID
+from polar.version import CURRENT_API_VERSION
 
 LOCALHOST_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "[::1]"}
 
@@ -114,6 +116,10 @@ class WebhookEndpointCreate(Schema):
         deprecated="The secret is now generated on the backend.",
         min_length=32,
     )
+    api_version: APIVersion = Field(
+        default=CURRENT_API_VERSION,
+        description="The API version that'll be used in event payloads.",
+    )
     format: EndpointFormat
     events: EndpointEvents
     organization_id: OrganizationID | None = Field(
@@ -139,6 +145,10 @@ class WebhookEndpointUpdate(Schema):
         default=None,
         deprecated="The secret should is now generated on the backend.",
         min_length=32,
+    )
+    api_version: APIVersion | None = Field(
+        default=None,
+        description="The API version that'll be used in event payloads.",
     )
     format: EndpointFormat | None = None
     events: EndpointEvents | None = None
@@ -172,6 +182,9 @@ class WebhookEvent(IDSchema, TimestampedSchema):
     )
     skipped: bool = Field(
         description="Whether this event was skipped because the webhook endpoint was disabled."
+    )
+    api_version: APIVersion = Field(
+        description="The API version used in the payload of this event."
     )
     payload: str | None = Field(description="The payload of the webhook event.")
     type: WebhookEventType = Field(description="The type of the webhook event.")

@@ -20,6 +20,7 @@ from polar.models import (
 )
 from polar.models.webhook_endpoint import WebhookEventType, WebhookFormat
 from polar.postgres import AsyncSession
+from polar.version import CURRENT_API_VERSION
 from polar.webhook.schemas import WebhookEndpointCreate, WebhookEndpointUpdate
 from polar.webhook.service import EventDoesNotExist, EventNotSuccessul
 from polar.webhook.service import webhook as webhook_service
@@ -211,6 +212,7 @@ class TestOnEventSuccess:
             webhook_endpoint=webhook_endpoint_organization,
             succeeded=False,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(event)
@@ -237,8 +239,14 @@ class TestOnEventSuccess:
             succeeded=True,
             last_http_code=200,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload=WebhookCheckoutUpdatedPayload.model_validate(
-                {"type": "checkout.updated", "timestamp": timestamp, "data": checkout}
+                {
+                    "type": "checkout.updated",
+                    "timestamp": timestamp,
+                    "api_version": CURRENT_API_VERSION,
+                    "data": checkout,
+                }
             ).model_dump_json(),
         )
         await save_fixture(event)
@@ -264,6 +272,7 @@ class TestCountEarlierPendingEvents:
             webhook_endpoint=webhook_endpoint_organization,
             succeeded=False,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(event)
@@ -281,6 +290,7 @@ class TestCountEarlierPendingEvents:
             succeeded=True,
             last_http_code=200,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(delivered_event)
@@ -297,6 +307,7 @@ class TestCountEarlierPendingEvents:
             webhook_endpoint=webhook_endpoint_organization,
             succeeded=False,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(event)
@@ -314,6 +325,7 @@ class TestCountEarlierPendingEvents:
             succeeded=False,
             last_http_code=None,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(delivered_event)
@@ -330,6 +342,7 @@ class TestCountEarlierPendingEvents:
             webhook_endpoint=webhook_endpoint_organization,
             succeeded=False,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(event)
@@ -347,6 +360,7 @@ class TestCountEarlierPendingEvents:
             succeeded=False,
             last_http_code=None,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(previous_event)
@@ -355,6 +369,7 @@ class TestCountEarlierPendingEvents:
             webhook_endpoint=webhook_endpoint_organization,
             succeeded=False,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(event)
@@ -373,6 +388,7 @@ class TestCountEarlierPendingEvents:
             succeeded=False,
             last_http_code=None,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(previous_event)
@@ -381,6 +397,7 @@ class TestCountEarlierPendingEvents:
             webhook_endpoint=webhook_endpoint_organization,
             succeeded=False,
             type=WebhookEventType.checkout_updated,
+            api_version=CURRENT_API_VERSION,
             payload="{}",
         )
         await save_fixture(event)
