@@ -9,7 +9,7 @@ from polar.kit.schemas import HttpsUrl, IDSchema, Schema, TimestampedSchema
 from polar.kit.versioning import APIVersion
 from polar.models.webhook_endpoint import WebhookEventType, WebhookFormat
 from polar.organization.schemas import OrganizationID
-from polar.version import CURRENT_API_VERSION
+from polar.version import CURRENT_API_VERSION, VERSIONS
 
 LOCALHOST_HOSTS = {"localhost", "127.0.0.1", "0.0.0.0", "[::1]"}
 
@@ -78,6 +78,15 @@ EndpointEvents = Annotated[
 ]
 
 
+def _is_available_version(api_version: APIVersion) -> APIVersion:
+    if api_version not in VERSIONS:
+        raise ValueError(f"Invalid API version: {api_version}")
+    return api_version
+
+
+AvailableAPIVersion = Annotated[APIVersion, AfterValidator(_is_available_version)]
+
+
 class WebhookEndpoint(IDSchema, TimestampedSchema):
     """
     A webhook endpoint.
@@ -89,6 +98,9 @@ class WebhookEndpoint(IDSchema, TimestampedSchema):
     name: str | None = Field(
         default=None,
         description="An optional name for the webhook endpoint to help organize and identify it.",
+    )
+    api_version: APIVersion = Field(
+        description="The API version that'll be used in event payloads."
     )
     format: EndpointFormat
     secret: EndpointSecret
@@ -116,7 +128,7 @@ class WebhookEndpointCreate(Schema):
         deprecated="The secret is now generated on the backend.",
         min_length=32,
     )
-    api_version: APIVersion = Field(
+    api_version: AvailableAPIVersion = Field(
         default=CURRENT_API_VERSION,
         description="The API version that'll be used in event payloads.",
     )
@@ -146,7 +158,7 @@ class WebhookEndpointUpdate(Schema):
         deprecated="The secret should is now generated on the backend.",
         min_length=32,
     )
-    api_version: APIVersion | None = Field(
+    api_version: AvailableAPIVersion | None = Field(
         default=None,
         description="The API version that'll be used in event payloads.",
     )
